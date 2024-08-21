@@ -75,10 +75,10 @@ label的标注格式是：
 ```
 x1, y1, x2, y2, px1, py1, px2, py2, px3, py3, px4, py4, angle_class, type
 ```
-x1,y1,x2,y2 是目标的矩形框的左上角点和右下角点坐标。
-px1, py1, px2, py2, px3, py3, px4, py4是目标的四个角点。
-angle_class是四个角度的分类,表示将图片顺时针旋转（0, 90, 180, 270），值分别为 0,1,2,3。
-type表示文件的类别，比如读光-票证检测矫正模型中将文件分为2类，复印件和非复印件，你也可以根据自己的需要设置分类。
+- x1,y1,x2,y2 是目标的矩形框的左上角点和右下角点坐标。
+- px1, py1, px2, py2, px3, py3, px4, py4是目标的四个角点。
+- angle_class是四个角度的分类,表示将图片顺时针旋转（0, 90, 180, 270），值分别为 0,1,2,3。
+- type表示文件的类别，比如读光-票证检测矫正模型中将文件分为2类，复印件和非复印件，你也可以根据自己的需要设置分类。
 
 
 ##### 模型训练
@@ -102,6 +102,6 @@ python train.py
 ![Alt text](./show/show4.jpg)
 
 ### 参考文献
-https://modelscope.cn/models/iic/cv_resnet18_card_correction
-https://github.com/modelscope/modelscope
-https://github.com/xingyizhou/CenterNet
+- https://modelscope.cn/models/iic/cv_resnet18_card_correction
+- https://github.com/modelscope/modelscope
+- https://github.com/xingyizhou/CenterNet
