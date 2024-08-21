@@ -1,0 +1,6 @@
+torch==1.7.1
+torchvision==0.8.2
+openvino-dev==2024.2.0
+onnx==1.7.0
+onnxruntime==1.16.2
+importlib.metadata==8.2.0
