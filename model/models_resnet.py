@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # @Author : BADBADBADBOY
-# @File : models.py
+# @File : models_resnet.py
 # @Time : 2024/8/20 21:22
 
 import torch.nn as nn
@@ -227,7 +227,7 @@ class PoseResNet(nn.Module):
 
         return nn.Sequential(*layers)
     
-    def init_weights(self, num_layers, pretrained=True):
+    def init_weights(self, pretrained=True):
         if pretrained:
             for _, m in self.deconv_layers1.named_modules():
                 if isinstance(m, nn.ConvTranspose2d):
@@ -314,7 +314,7 @@ def LicensePlateDet(num_layers=18):
     heads = {'hm': 1, 'cls': 4, 'ftype': 11, 'wh': 8, 'reg': 2}
     block_class, layers = resnet_spec[num_layers]
     model = PoseResNet(block_class, layers, heads)
-    model.init_weights(num_layers)
+    model.init_weights()
     return model
 
 
@@ -322,5 +322,5 @@ def CardDetectionCorrectionModel(num_layers=18):
     heads = {'hm': 1, 'cls': 4, 'ftype': 2, 'wh': 8, 'reg': 2}
     block_class, layers = resnet_spec[num_layers]
     model = PoseResNet(block_class, layers, heads)
-    model.init_weights(num_layers)
+    model.init_weights()
     return model

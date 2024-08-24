@@ -8,14 +8,21 @@ import os
 import time
 import torch
 from dataload.dataload import DataLoad
-from model.models import CardDetectionCorrectionModel
+
 from model.loss import CtdetLoss
 import torch.optim as optim
 from utils.utils import AverageMeter
 from config import *
 from optimizer import *
 
-model = CardDetectionCorrectionModel(num_layers=18)
+assert BASE_MODEL in MODEL_SUPPORT,"not support this model !!!"
+
+if BASE_MODEL == "resnet":
+    from model.models_resnet import CardDetectionCorrectionModel
+    model = CardDetectionCorrectionModel(num_layers = NUM_LAYER)
+elif BASE_MODEL == "lcnet":
+    from model.models_lcnet import CardDetectionCorrectionModel
+    model = CardDetectionCorrectionModel(ratio = MODEL_RATIO)
 
 if OPTIM_METHOD == "Adam":
     optimizer = AdamDecay(OPTIM_CONFIG,model.parameters())
@@ -38,7 +45,7 @@ if LOAD_TYPE == "resnet18":
             new_pre_dict[key] = pre_dict[key]
     model.load_state_dict(new_pre_dict,strict=False)
     
-elif LOAD_TYPE == "modelscope":
+elif LOAD_TYPE == "modelscope" and BASE_MODEL=="resnet":
     model.load_state_dict(torch.load(PRE_MODEL_PATH)['state_dict'])
 
 train_loader = torch.utils.data.DataLoader(

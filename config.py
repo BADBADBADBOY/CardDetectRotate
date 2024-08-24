@@ -13,6 +13,13 @@ INPUT_W = 512 ### 模型训练时，训练图片的宽
 
 
 ### train
+MODEL_SUPPORT = ['resnet','lcnet']
+BASE_MODEL = "resnet"
+NUM_LAYER = 18
+
+# BASE_MODEL = "lcnet"
+# MODEL_RATIO = 1.
+
 LEARNING_RATE= 0.001 ### 初始学习率
 NUM_EPOCH = 200  ### 训练的epoch数
 BATCH_SIZE = 32  ### 训练的batch_size

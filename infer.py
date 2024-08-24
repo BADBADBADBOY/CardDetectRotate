@@ -12,7 +12,6 @@ import shutil
 import math
 import numpy as np
 from utils.utils import get_affine_transform,bbox_decode,decode_by_ind,nms,bbox_post_process,get_package_installation_path
-from model.models import CardDetectionCorrectionModel
 from openvino.runtime import Core, AsyncInferQueue
 from utils.utils import order_points_new,draw_show_img,merge_images_horizontal
 from config import *
@@ -23,8 +22,15 @@ class CardRotate(object):
 
     def load_torch(self,model_path):
         super(CardRotate,self).__init__()
-        self.infer_model = CardDetectionCorrectionModel()
-        if TEST_LOAD_TYPE == 'modelscope':
+        if BASE_MODEL == "resnet":
+            from model.models_resnet import CardDetectionCorrectionModel
+            model = CardDetectionCorrectionModel(num_layers=NUM_LAYER)
+        elif BASE_MODEL == "lcnet":
+            from model.models_lcnet import CardDetectionCorrectionModel
+            model = CardDetectionCorrectionModel(ratio=MODEL_RATIO)
+
+        self.infer_model = model
+        if TEST_LOAD_TYPE == 'modelscope' and BASE_MODEL=='resnet':
             model_dict = torch.load(model_path, map_location='cpu')['state_dict']
         else:
             model_dict = torch.load(model_path, map_location='cpu')
