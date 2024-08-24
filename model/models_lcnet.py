@@ -2,39 +2,17 @@ from __future__ import absolute_import, division, print_function
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
+class hswish(nn.Module):
+    def forward(self, x):
+        out = x * F.relu6(x + 3, inplace=True) / 6
+        return out
 
-MODEL_URLS = {
-    "PPLCNet_x0_25":
-    "https://paddle-imagenet-models-name.bj.bcebos.com/dygraph/legendary_models/PPLCNet_x0_25_pretrained.pdparams",
-    "PPLCNet_x0_35":
-    "https://paddle-imagenet-models-name.bj.bcebos.com/dygraph/legendary_models/PPLCNet_x0_35_pretrained.pdparams",
-    "PPLCNet_x0_5":
-    "https://paddle-imagenet-models-name.bj.bcebos.com/dygraph/legendary_models/PPLCNet_x0_5_pretrained.pdparams",
-    "PPLCNet_x0_75":
-    "https://paddle-imagenet-models-name.bj.bcebos.com/dygraph/legendary_models/PPLCNet_x0_75_pretrained.pdparams",
-    "PPLCNet_x1_0":
-    "https://paddle-imagenet-models-name.bj.bcebos.com/dygraph/legendary_models/PPLCNet_x1_0_pretrained.pdparams",
-    "PPLCNet_x1_5":
-    "https://paddle-imagenet-models-name.bj.bcebos.com/dygraph/legendary_models/PPLCNet_x1_5_pretrained.pdparams",
-    "PPLCNet_x2_0":
-    "https://paddle-imagenet-models-name.bj.bcebos.com/dygraph/legendary_models/PPLCNet_x2_0_pretrained.pdparams",
-    "PPLCNet_x2_5":
-    "https://paddle-imagenet-models-name.bj.bcebos.com/dygraph/legendary_models/PPLCNet_x2_5_pretrained.pdparams"
-}
-
-MODEL_STAGES_PATTERN = {
-    "PPLCNet": ["blocks2", "blocks3", "blocks4", "blocks5", "blocks6"]
-}
-
-__all__ = list(MODEL_URLS.keys())
-
-# Each element(list) represents a depthwise block, which is composed of k, in_c, out_c, s, use_se.
-# k: kernel_size
-# in_c: input channel number in depthwise block
-# out_c: output channel number in depthwise block
-# s: stride in depthwise block
-# use_se: whether to use SE block
+class hsigmoid(nn.Module):
+    def forward(self, x):
+        out = F.relu6(x + 3, inplace=True) / 6
+        return out
 
 NET_CONFIG = {
     "blocks2":
@@ -64,8 +42,7 @@ class ConvBNLayer(nn.Module):
                  filter_size,
                  num_filters,
                  stride,
-                 num_groups=1,
-                 lr_mult=1.0):
+                 num_groups=1):
         super().__init__()
 
         self.conv = nn.Conv2d(
@@ -79,7 +56,7 @@ class ConvBNLayer(nn.Module):
 
         self.bn = nn.BatchNorm2d(
             num_filters)
-        self.hardswish = nn.Hardswish()
+        self.hardswish = hswish()
 
     def forward(self, x):
         x = self.conv(x)
@@ -138,7 +115,7 @@ class SEModule(nn.Module):
             kernel_size=1,
             stride=1,
             padding=0)
-        self.hardsigmoid = nn.Hardsigmoid()
+        self.hardsigmoid = hsigmoid()
 
     def forward(self, x):
         identity = x
@@ -412,8 +389,12 @@ class PPLCNet(nn.Module):
         return [ret]
 
 
-def CardDetectionCorrectionModel(ratio =0.5):
+def CardDetectionCorrectionModel(ratio = 1.):
     heads = {'hm': 1, 'cls': 4, 'ftype': 2, 'wh': 8, 'reg': 2}
     model = PPLCNet(heads,ratio)
     model.init_weights()
     return model
+
+model = CardDetectionCorrectionModel()
+img = torch.rand(1,3,640,640)
+out = model(img)
