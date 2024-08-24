@@ -105,3 +105,4 @@ python train.py
 - https://modelscope.cn/models/iic/cv_resnet18_card_correction
 - https://github.com/modelscope/modelscope
 - https://github.com/xingyizhou/CenterNet
+- https://github.com/PaddlePaddle/PaddleClas
