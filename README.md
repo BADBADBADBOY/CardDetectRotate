@@ -106,3 +106,4 @@ python train.py
 - https://github.com/modelscope/modelscope
 - https://github.com/xingyizhou/CenterNet
 - https://github.com/PaddlePaddle/PaddleClas
+- https://github.com/DingXiaoH/RepVGG
