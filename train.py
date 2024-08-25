@@ -23,6 +23,9 @@ if BASE_MODEL == "resnet":
 elif BASE_MODEL == "lcnet":
     from model.models_lcnet import CardDetectionCorrectionModel
     model = CardDetectionCorrectionModel(ratio = MODEL_RATIO)
+elif BASE_MODEL == "replcnet":
+    from model.models_replcnet import CardDetectionCorrectionModel
+    model = CardDetectionCorrectionModel(ratio=MODEL_RATIO)
 
 if OPTIM_METHOD == "Adam":
     optimizer = AdamDecay(OPTIM_CONFIG,model.parameters())

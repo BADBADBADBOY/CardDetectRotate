@@ -28,13 +28,18 @@ class CardRotate(object):
         elif BASE_MODEL == "lcnet":
             from model.models_lcnet import CardDetectionCorrectionModel
             model = CardDetectionCorrectionModel(ratio=MODEL_RATIO)
-
-        self.infer_model = model
+        elif BASE_MODEL == "replcnet":
+            from model.models_replcnet import CardDetectionCorrectionModel
+            from model.rep_blocks import repvgg_model_convert
+            model = CardDetectionCorrectionModel(ratio=MODEL_RATIO)
         if TEST_LOAD_TYPE == 'modelscope' and BASE_MODEL=='resnet':
             model_dict = torch.load(model_path, map_location='cpu')['state_dict']
         else:
             model_dict = torch.load(model_path, map_location='cpu')
-        self.infer_model.load_state_dict(model_dict)
+        model.load_state_dict(model_dict)
+        if BASE_MODEL == "replcnet":
+            model = repvgg_model_convert(model)
+        self.infer_model = model
         self.infer_model.eval()
         self.infer_type = 'torch'
         if torch.cuda.is_available() and USE_GPU:

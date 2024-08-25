@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model.rep_blocks import hswish, hsigmoid
+from rep_blocks import hsigmoid, hswish, RepVGGBlock
 
 NET_CONFIG = {
     "blocks2":
@@ -66,13 +66,10 @@ class DepthwiseSeparable(nn.Module):
                  ):
         super().__init__()
         self.use_se = use_se
-        self.dw_conv = ConvBNLayer(
-            num_channels=num_channels,
-            num_filters=num_channels,
-            filter_size=dw_size,
-            stride=stride,
-            num_groups=num_channels,
-            )
+        self.dw_conv = RepVGGBlock(in_channels=num_channels, out_channels=num_channels,
+                    kernel_size=dw_size, stride=stride,
+                    padding=(dw_size - 1) // 2, groups=num_channels,
+                    deploy=False, act="hardswish", use_se=self.use_se)
         if use_se:
             self.se = SEModule(num_channels)
         self.pw_conv = ConvBNLayer(
@@ -119,7 +116,7 @@ class SEModule(nn.Module):
         return x
 
 
-class PPLCNet(nn.Module):
+class RePPPLCNet(nn.Module):
     def __init__(self,
                  heads,
                  scale=0.5,
@@ -382,10 +379,15 @@ class PPLCNet(nn.Module):
 
 def CardDetectionCorrectionModel(ratio = 1.):
     heads = {'hm': 1, 'cls': 4, 'ftype': 2, 'wh': 8, 'reg': 2}
-    model = PPLCNet(heads,ratio)
+    model = RePPPLCNet(heads, ratio)
     model.init_weights()
     return model
 
-model = CardDetectionCorrectionModel()
-img = torch.rand(1,3,640,640)
-out = model(img)
+# model = CardDetectionCorrectionModel(ratio=0.5)
+# print(model)
+# from rep_blocks import repvgg_model_convert
+# model = repvgg_model_convert(model)
+# print(model)
+# img = torch.rand(1,3,640,640)
+# out = model(img)
+# print(out)

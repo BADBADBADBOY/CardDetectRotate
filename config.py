@@ -13,11 +13,14 @@ INPUT_W = 512 ### 模型训练时，训练图片的宽
 
 
 ### train
-MODEL_SUPPORT = ['resnet','lcnet']
+MODEL_SUPPORT = ['resnet','lcnet','replcnet']
 BASE_MODEL = "resnet"
 NUM_LAYER = 18
 
 # BASE_MODEL = "lcnet"
+# MODEL_RATIO = 1.
+
+# BASE_MODEL = "replcnet"
 # MODEL_RATIO = 1.
 
 LEARNING_RATE= 0.001 ### 初始学习率
