@@ -1,6 +1,6 @@
 ### 卡证矫正和文档矫正
 ##### 写在前面
-模型和思路来源： [读光-票证检测矫正模型](https://modelscope.cn/models/iic/cv_resnet18_card_correction)，试了下效果不错，但是因为没开源训练模块，索性自己撸了下，数据加载dataload模块其实还是有优化空间的，比如我没对训练图片做光照，加噪等数据扩增操作。
+模型和思路来源： [读光-票证检测矫正模型](https://modelscope.cn/models/iic/cv_resnet18_card_correction)，试了下效果不错，但是因为没开源训练模块，索性自己撸了下。
 
 #### 环境安装
 
