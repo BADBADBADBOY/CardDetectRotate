@@ -11,7 +11,7 @@ import torch
 import shutil
 import math
 import numpy as np
-from utils.utils import get_affine_transform,bbox_decode,decode_by_ind,nms,bbox_post_process,get_package_installation_path
+from utils.utils import get_affine_transform,bbox_decode,decode_by_ind,nms,bbox_post_process,get_package_installation_path,get_train_file
 from openvino.runtime import Core, AsyncInferQueue
 from utils.utils import order_points_new,draw_show_img,merge_images_horizontal
 from config import *
@@ -220,10 +220,12 @@ class CardRotate(object):
 
 if __name__ == "__main__":
     
-    img = cv2.imread(r'./pp4.jpg')
+#     get_train_file(det_dir = "/src/notebooks/trainimg/image",pre_img_dir='./pre_img',pre_gt_dir='./pre_gt',model_path=TEST_MODEL_PATH)
+    
+    img = cv2.imread(r'./pre_img/test.jpg')
     
     rotate_bin = CardRotate()
-    
+
     if TEST_TYPE == "test_torch":
         rotate_bin.load_torch(TEST_MODEL_PATH)
     elif TEST_TYPE == "test_openvino":
@@ -239,11 +241,11 @@ if __name__ == "__main__":
         os.remove("./model.onnx")
     if TEST_TYPE == "test_torch" or TEST_TYPE == "test_openvino":
         t_sum = 0
-        for i in range(10):
+        for i in range(1):
             t = time.time()
             out = rotate_bin.rotate(img)
             t_sum += (time.time() - t)
-        print("time avg:{}".format(t_sum/10))
+        print("time avg:{}".format(t_sum/1))
         draw_show_img(img.copy(), out)
         merge_images_horizontal([img] + out['OUTPUT_IMGS'],"./pp4_rotate_show.jpg")
         cv2.imwrite(r'./rotate_img.jpg',out['OUTPUT_IMGS'][0])

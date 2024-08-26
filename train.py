@@ -60,7 +60,7 @@ train_loader = torch.utils.data.DataLoader(
       drop_last=True
   )
 
-fid = open('./loss.txt','w+', encoding='utf-8')
+fid = open('./loss_{}.txt'.format(BASE_MODEL),'w+', encoding='utf-8')
 
 if not os.path.exists(SAVE_PATH):
     os.mkdir(SAVE_PATH)

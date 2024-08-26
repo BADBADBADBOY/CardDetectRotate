@@ -13,6 +13,56 @@ import numpy as np
 import cv2
 import random
 
+
+def random_color_transform(img):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    hue_delta = random.randint(-30, 30)
+    hsv[:, :, 0] = (hsv[:, :, 0] + hue_delta) % 180
+    saturation_delta = random.uniform(-0.4, 0.4)
+    hsv[:, :, 1] = np.clip(hsv[:, :, 1] * (1 + saturation_delta), 0, 255)
+    new_img = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+    return new_img
+
+def random_brightness_adjust(img):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    brightness_delta = random.uniform(-0.4, 0.4)
+    print(brightness_delta)
+    hsv[:, :, 2] = np.clip(hsv[:, :, 2] * (1 + brightness_delta), 0, 255)
+    new_img = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+    return new_img
+
+def random_white_mask(img):
+    mask_percentage = min(1, 0.5 + np.random.rand())/100
+    height, width, channels = img.shape
+    num_pixels_to_mask = int(height * width * mask_percentage)
+    mask = np.zeros((height, width, channels), dtype=np.uint8)
+    indices = np.random.choice(height * width, num_pixels_to_mask, replace=False)
+    y_indices = indices // width
+    x_indices = indices % width
+    mask[y_indices, x_indices] = [255, 255, 255]
+    masked_img = cv2.add(img, mask)
+    return masked_img
+
+def random_motion_blur(image):
+    image = np.array(image)
+    degree = np.random.randint(2, 10)
+    angle = np.random.randint(0, 360)
+    M = cv2.getRotationMatrix2D((degree / 2, degree / 2), angle, 1)
+    motion_blur_kernel = np.diag(np.ones(degree))
+    motion_blur_kernel = cv2.warpAffine(motion_blur_kernel, M, (degree, degree))
+    motion_blur_kernel = motion_blur_kernel / degree
+    blurred = cv2.filter2D(image, -1, motion_blur_kernel)
+    cv2.normalize(blurred, blurred, 0, 255, cv2.NORM_MINMAX)
+    blurred_image = np.array(blurred, dtype=np.uint8)
+    return blurred_image
+
+def random_gaussian_blur(image):
+    id = np.random.randint(0, 4)
+    k_size = [3, 5, 7, 9]
+    blurred_image = cv2.GaussianBlur(image, ksize=(k_size[id], k_size[id]),
+                                     sigmaX=0, sigmaY=0)
+    return blurred_image
+
 def flip(img):
     return img[:, :, ::-1].copy()  
 

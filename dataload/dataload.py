@@ -18,6 +18,7 @@ from dataload.image_utils import flip, color_aug
 from dataload.image_utils import get_affine_transform, affine_transform
 from dataload.image_utils import gaussian_radius, draw_umich_gaussian, draw_msra_gaussian
 from dataload.image_utils import draw_dense_reg
+from dataload.image_utils import random_color_transform,random_brightness_adjust,random_white_mask,random_motion_blur,random_gaussian_blur
 
 
 class DataLoad(data.Dataset):
@@ -49,11 +50,33 @@ class DataLoad(data.Dataset):
     def __len__(self):
         return self.nSamples
     
+    def random_aug_img(self,img, ratio = 0.4):
+        if np.random.rand() < ratio:
+            img = random_color_transform(img)
+        if np.random.rand() < ratio:
+            img = random_brightness_adjust(img)
+        if np.random.rand() < ratio:
+            img = random_white_mask(img)
+        if np.random.rand() < ratio:
+            img = random_motion_blur(img)
+        if np.random.rand() < ratio:
+            img = random_gaussian_blur(img)
+        return img
+    
     def random_data(self,img,output_size=(512, 512)):
         h, w = img.shape[:2]
         center = np.array((w // 2, h // 2)) + np.array([np.random.randint(-64,64),np.random.randint(-64,64)])
-        scale = max(h, w) * np.random.choice(np.arange(0.8, 1.2, 0.1))
-        rot = np.random.randint(-10,10)
+        scale = max(h, w) * np.random.choice(np.arange(0.7, 1.3, 0.1))
+        rot = np.random.randint(-10, 10)
+        trans = get_affine_transform(center, scale=scale, rot=rot, output_size=output_size)
+        img = cv2.warpAffine(img, trans, output_size)
+        return img, trans
+    
+    def regular_data(self,img,output_size=(512, 512)):
+        h, w = img.shape[:2]
+        center = np.array((w // 2, h // 2)) 
+        scale = max(h, w) 
+        rot = 0
         trans = get_affine_transform(center, scale=scale, rot=rot, output_size=output_size)
         img = cv2.warpAffine(img, trans, output_size)
         return img, trans
@@ -64,7 +87,13 @@ class DataLoad(data.Dataset):
         gt_objs = self.load_gt(gt_path)
         num_objs = min(len(gt_objs), self.max_objs)
         img = cv2.imread(img_path)
-        inp, trans = self.random_data(img,(self.input_w, self.input_h))
+        img = self.random_aug_img(img, ratio = 0.4)
+        
+        if np.random.rand() > 0.5:
+            inp, trans = self.random_data(img,(self.input_w, self.input_h))
+        else:
+            inp, trans = self.regular_data(img,(self.input_w, self.input_h))
+        
         inp_show = cv2.resize(inp.copy(),None,fx=1/self.down_ratio,fy=1/self.down_ratio)
         inp = (inp.astype(np.float32) / 255.)
         inp = (inp - self.mean) / self.std
@@ -84,7 +113,8 @@ class DataLoad(data.Dataset):
             bbox = gt_objs[k][:4] ## (x,y,w,h) -> (x1,y1,x2,y2)
             poly = gt_objs[k][4:12].reshape(4,2)
             cl = gt_objs[k][12]
-
+            
+            
             poly[0] = affine_transform(poly[0], trans)
             poly[1] = affine_transform(poly[1], trans)
             poly[2] = affine_transform(poly[2], trans)
@@ -127,6 +157,8 @@ class DataLoad(data.Dataset):
                 reg[k] = ct - ct_int
 
                 reg_mask[k] = 1
+                
+            cv2.imwrite('inp_show.jpg', inp_show)
 
         ret = {'input': inp, 'hm': hm, 'cls': cls, 'reg_mask': reg_mask, 'ind': ind, 'wh': wh, 'reg': reg}
 

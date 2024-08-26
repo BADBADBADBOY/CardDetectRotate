@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from rep_blocks import hsigmoid, hswish, RepVGGBlock
+from model.rep_blocks import hsigmoid, hswish, RepVGGBlock
 
 NET_CONFIG = {
     "blocks2":

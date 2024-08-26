@@ -66,13 +66,15 @@ def get_train_file(det_dir,pre_img_dir='./pre_img',pre_gt_dir='./pre_gt',model_p
     model_path = r'./openvino/model.xml'
     get_train_file(det_dir, pre_img_dir,pre_gt_dir, model_path)
     """
+    import os
     from tqdm import tqdm
+    from infer import CardRotate
     if not os.path.exists(pre_gt_dir):
         os.mkdir(pre_gt_dir)
     if not os.path.exists(pre_img_dir):
         os.mkdir(pre_img_dir)
     rotate_bin = CardRotate()
-    rotate_bin.load_openvino(model_path)
+    rotate_bin.load_torch(model_path)
     files = os.listdir(det_dir)
     for file in tqdm(files):
         img = cv2.imread(os.path.join(det_dir,file))
