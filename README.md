@@ -56,6 +56,11 @@ python infer.py
 
 ### 模型训练
 
+##### 卡证生成数据集
+
+[合成卡证数据集](https://modelscope.cn/datasets/shaoxuan/SyntheticCards)
+
+
 ##### 数据准备
 
 按如下结构准备数据集
