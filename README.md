@@ -97,6 +97,7 @@ x1, y1, x2, y2, px1, py1, px2, py2, px3, py3, px4, py4, angle_class, type
 
 ```
 CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port 1234 train.py
+```
 
 四卡
 
