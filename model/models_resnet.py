@@ -318,8 +318,11 @@ def LicensePlateDet(num_layers=18):
     return model
 
 
-def CardDetectionCorrectionModel(num_layers=18):
-    heads = {'hm': 1, 'cls': 4, 'ftype': 2, 'wh': 8, 'reg': 2}
+def CardDetectionCorrectionModel(num_layers=18, need_ftype = False):
+    if need_ftype:
+        heads = {'hm': 1, 'cls': 4, 'ftype': 2, 'wh': 8, 'reg': 2}
+    else:
+        heads = {'hm': 1, 'cls': 4, 'wh': 8, 'reg': 2}
     block_class, layers = resnet_spec[num_layers]
     model = PoseResNet(block_class, layers, heads)
     model.init_weights()

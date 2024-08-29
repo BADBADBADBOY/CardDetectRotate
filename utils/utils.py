@@ -52,7 +52,7 @@ def draw_show_img(img,result):
         poly = poly.reshape(4, 2).astype(np.int32)
         ori_center = ((bbox[idx][0]+bbox[idx][2])//2,(bbox[idx][1]+bbox[idx][3])//2)
         color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
-        img = cv2.drawContours(img,[poly],-1,color,5)
+        img = cv2.drawContours(img,[poly],-1,color,2)
         img = cv2.circle(img,tuple(centers[idx].astype(np.int64).tolist()),5,color,thickness=2)
         img = cv2.circle(img,ori_center,5,(0,0,255),thickness=2)
         img = cv2.putText(img,str(angle_cls[idx]),ori_center,cv2.FONT_HERSHEY_SIMPLEX,2,(0,0,255),2)

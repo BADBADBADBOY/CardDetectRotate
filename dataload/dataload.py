@@ -65,7 +65,7 @@ class DataLoad(data.Dataset):
     
     def random_data(self,img,output_size=(512, 512)):
         h, w = img.shape[:2]
-        center = np.array((w // 2, h // 2)) + np.array([np.random.randint(-64,64),np.random.randint(-64,64)])
+        center = np.array((w // 2, h // 2)) + np.array([np.random.randint(-64,64), np.random.randint(-64,64)])
         scale = max(h, w) * np.random.choice(np.arange(0.7, 1.3, 0.1))
         rot = np.random.randint(-10, 10)
         trans = get_affine_transform(center, scale=scale, rot=rot, output_size=output_size)
@@ -89,7 +89,7 @@ class DataLoad(data.Dataset):
         img = cv2.imread(img_path)
         img = self.random_aug_img(img, ratio = 0.4)
         
-        if np.random.rand() > 0.5:
+        if np.random.rand() > 0.7:
             inp, trans = self.random_data(img,(self.input_w, self.input_h))
         else:
             inp, trans = self.regular_data(img,(self.input_w, self.input_h))
@@ -126,7 +126,10 @@ class DataLoad(data.Dataset):
             poly = poly / self.down_ratio
             bbox = bbox / self.down_ratio
             
-            poly = order_points_new(poly)  
+            poly = order_points_new(poly) 
+            
+            bbox = np.array([poly[:,0].min(), poly[:,1].min(), poly[:,0].max(), poly[:,1].max()])
+            
             poly = poly.reshape(-1)
             
             bbox_center = np.array([(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2])
@@ -158,7 +161,7 @@ class DataLoad(data.Dataset):
 
                 reg_mask[k] = 1
                 
-            cv2.imwrite('inp_show.jpg', inp_show)
+        cv2.imwrite('inp_show.jpg', inp_show)
 
         ret = {'input': inp, 'hm': hm, 'cls': cls, 'reg_mask': reg_mask, 'ind': ind, 'wh': wh, 'reg': reg}
 

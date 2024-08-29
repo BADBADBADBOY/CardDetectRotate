@@ -380,12 +380,11 @@ class PPLCNet(nn.Module):
         return [ret]
 
 
-def CardDetectionCorrectionModel(ratio = 1.):
-    heads = {'hm': 1, 'cls': 4, 'ftype': 2, 'wh': 8, 'reg': 2}
+def CardDetectionCorrectionModel(ratio = 1., need_ftype=False):
+    if need_ftype:
+        heads = {'hm': 1, 'cls': 4, 'ftype': 2, 'wh': 8, 'reg': 2}
+    else:
+        heads = {'hm': 1, 'cls': 4, 'wh': 8, 'reg': 2}
     model = PPLCNet(heads,ratio)
     model.init_weights()
     return model
-
-model = CardDetectionCorrectionModel()
-img = torch.rand(1,3,640,640)
-out = model(img)

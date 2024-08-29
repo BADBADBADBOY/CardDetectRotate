@@ -377,17 +377,11 @@ class RePPPLCNet(nn.Module):
         return [ret]
 
 
-def CardDetectionCorrectionModel(ratio = 1.):
-    heads = {'hm': 1, 'cls': 4, 'ftype': 2, 'wh': 8, 'reg': 2}
+def CardDetectionCorrectionModel(ratio = 1.,need_ftype=False):
+    if need_ftype:
+        heads = {'hm': 1, 'cls': 4, 'ftype': 2, 'wh': 8, 'reg': 2}
+    else:
+        heads = {'hm': 1, 'cls': 4, 'wh': 8, 'reg': 2}
     model = RePPPLCNet(heads, ratio)
     model.init_weights()
     return model
-
-# model = CardDetectionCorrectionModel(ratio=0.5)
-# print(model)
-# from rep_blocks import repvgg_model_convert
-# model = repvgg_model_convert(model)
-# print(model)
-# img = torch.rand(1,3,640,640)
-# out = model(img)
-# print(out)

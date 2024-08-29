@@ -93,10 +93,15 @@ x1, y1, x2, y2, px1, py1, px2, py2, px3, py3, px4, py4, angle_class, type
 
 其他参数可根据需要自己调整
 
-运行
+单卡
 
 ```
-python train.py
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port 1234 train.py
+
+四卡
+
+```
+CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 --master_port 1234 train.py
 ```
 
 ### 模型效果

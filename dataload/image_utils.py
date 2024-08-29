@@ -26,7 +26,6 @@ def random_color_transform(img):
 def random_brightness_adjust(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     brightness_delta = random.uniform(-0.4, 0.4)
-    print(brightness_delta)
     hsv[:, :, 2] = np.clip(hsv[:, :, 2] * (1 + brightness_delta), 0, 255)
     new_img = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
     return new_img

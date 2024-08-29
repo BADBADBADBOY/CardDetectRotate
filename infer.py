@@ -24,21 +24,29 @@ class CardRotate(object):
         super(CardRotate,self).__init__()
         if BASE_MODEL == "resnet":
             from model.models_resnet import CardDetectionCorrectionModel
-            model = CardDetectionCorrectionModel(num_layers=NUM_LAYER)
+            model = CardDetectionCorrectionModel(num_layers=NUM_LAYER, need_ftype=NEED_FTYPE)
         elif BASE_MODEL == "lcnet":
             from model.models_lcnet import CardDetectionCorrectionModel
-            model = CardDetectionCorrectionModel(ratio=MODEL_RATIO)
+            model = CardDetectionCorrectionModel(ratio=MODEL_RATIO, need_ftype=NEED_FTYPE)
         elif BASE_MODEL == "replcnet":
             from model.models_replcnet import CardDetectionCorrectionModel
             from model.rep_blocks import repvgg_model_convert
-            model = CardDetectionCorrectionModel(ratio=MODEL_RATIO)
+            model = CardDetectionCorrectionModel(ratio=MODEL_RATIO, need_ftype=NEED_FTYPE)
         if TEST_LOAD_TYPE == 'modelscope' and BASE_MODEL=='resnet':
             model_dict = torch.load(model_path, map_location='cpu')['state_dict']
         else:
             model_dict = torch.load(model_path, map_location='cpu')
-        model.load_state_dict(model_dict)
+        try:    
+            model.load_state_dict(model_dict)
+        except:
+            new_model_dict = {}
+            for key in model.state_dict().keys():
+                new_model_dict[key] = model_dict['module.' + key]
+            model.load_state_dict(new_model_dict)
+ 
         if BASE_MODEL == "replcnet":
             model = repvgg_model_convert(model)
+            print("Convert rep model ok !!!")
         self.infer_model = model
         self.infer_model.eval()
         self.infer_type = 'torch'
@@ -153,11 +161,17 @@ class CardRotate(object):
     def forward_openvino(self,input):
         self.infer_request.infer([input['img']])
         openvino_output = {}
-        openvino_output['hm'] = self.infer_request.get_output_tensor(0).data
-        openvino_output['cls'] = self.infer_request.get_output_tensor(1).data
-        openvino_output['ftype'] = self.infer_request.get_output_tensor(2).data
-        openvino_output['wh'] = self.infer_request.get_output_tensor(3).data
-        openvino_output['reg'] = self.infer_request.get_output_tensor(4).data
+        if NEED_FTYPE:
+            openvino_output['hm'] = self.infer_request.get_output_tensor(0).data
+            openvino_output['cls'] = self.infer_request.get_output_tensor(1).data
+            openvino_output['ftype'] = self.infer_request.get_output_tensor(2).data
+            openvino_output['wh'] = self.infer_request.get_output_tensor(3).data
+            openvino_output['reg'] = self.infer_request.get_output_tensor(4).data
+        else:
+            openvino_output['hm'] = self.infer_request.get_output_tensor(0).data
+            openvino_output['cls'] = self.infer_request.get_output_tensor(1).data
+            openvino_output['wh'] = self.infer_request.get_output_tensor(2).data
+            openvino_output['reg'] = self.infer_request.get_output_tensor(3).data
         return {'results': [openvino_output], 'meta': input['meta']}
 
     def postprocess(self, inputs):
@@ -168,16 +182,19 @@ class CardRotate(object):
         
         hm = output['hm'].sigmoid_()
         angle_cls = output['cls'].sigmoid_()
-        ftype_cls = output['ftype'].sigmoid_()
+        if NEED_FTYPE:
+            ftype_cls = output['ftype'].sigmoid_()
 
         bbox, inds = bbox_decode(hm, wh, reg=reg, K=self.K)
         angle_cls = decode_by_ind(angle_cls, inds, K=self.K).detach().cpu().numpy()
-        ftype_cls = decode_by_ind(ftype_cls, inds,K=self.K).detach().cpu().numpy().astype(np.float32)
+        if NEED_FTYPE:
+            ftype_cls = decode_by_ind(ftype_cls, inds,K=self.K).detach().cpu().numpy().astype(np.float32)
         bbox = bbox.detach().cpu().numpy()
 
         for i in range(bbox.shape[1]):
             bbox[0][i][9] = angle_cls[0][i]
-        bbox = np.concatenate((bbox, np.expand_dims(ftype_cls, axis=-1)),axis=-1)
+        if NEED_FTYPE:
+            bbox = np.concatenate((bbox, np.expand_dims(ftype_cls, axis=-1)),axis=-1)
         bbox = nms(bbox, 0.3)
         bbox = bbox_post_process(bbox.copy(), [meta['c']],[meta['s']], meta['out_height'],meta['out_width'])
         res = []
@@ -201,7 +218,8 @@ class CardRotate(object):
                 if angle[-1] == 3:
                     sub_img = cv2.rotate(sub_img, 0)
                 sub_imgs.append(sub_img)
-                ftype.append(int(box[12]))
+                if NEED_FTYPE:
+                    ftype.append(int(box[12]))
                 score.append(box[8])
                 center.append([box[10],box[11]])
 
@@ -222,7 +240,8 @@ if __name__ == "__main__":
     
 #     get_train_file(det_dir = "/src/notebooks/trainimg/image",pre_img_dir='./pre_img',pre_gt_dir='./pre_gt',model_path=TEST_MODEL_PATH)
     
-    img = cv2.imread(r'./pre_img/test.jpg')
+    img = cv2.imread(r'../SyntheticCards_train100k/data/place_798_aug_0.jpg')
+#     img = cv2.imread(r'./pre_img/yyzz_img_16_rotated_0deg.jpg')
     
     rotate_bin = CardRotate()
 
