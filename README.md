@@ -60,6 +60,7 @@ python infer.py
 
 [合成卡证数据集](https://modelscope.cn/datasets/shaoxuan/SyntheticCards)
 
+[合成卡证数据转换脚本](./scripts/tranform_label.py)
 
 ##### 数据准备
 
